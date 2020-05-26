@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:attedancerecordsystm/values/MyColor.dart';
@@ -18,7 +17,7 @@ class _LoginState extends State<Login> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          'Email',
+          'SVV Net ID',
           style: kLabelStyle,
         ),
         SizedBox(height: 10.0),
@@ -27,19 +26,20 @@ class _LoginState extends State<Login> {
           decoration: kBoxDecorationStyle,
           height: 60.0,
           child: TextField(
-            keyboardType: TextInputType.emailAddress,
+            keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
             style: TextStyle(
               color: Colors.white,
               fontFamily: 'OpenSans',
             ),
+            maxLength: 6,
             decoration: InputDecoration(
               border: InputBorder.none,
               contentPadding: EdgeInsets.only(top: 14.0),
               prefixIcon: Icon(
-                Icons.email,
+                Icons.domain,
                 color: Colors.white,
               ),
-              hintText: 'Enter your Email',
+              hintText: 'Enter your SVV Net ID',
               hintStyle: kHintTextStyle,
             ),
           ),
@@ -156,7 +156,7 @@ class _LoginState extends State<Login> {
         Text(
           '- OR -',
           style: TextStyle(
-            color: Colors.white,
+            color: MyColor.som_blue,
             fontWeight: FontWeight.w400,
           ),
         ),
@@ -195,7 +195,7 @@ class _LoginState extends State<Login> {
 
   Widget _buildSocialBtnRow() {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 30.0),
+      padding: EdgeInsets.symmetric(vertical: 20.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
@@ -243,45 +243,87 @@ class _LoginState extends State<Login> {
     return Scaffold(
       backgroundColor: Colors.white,
        resizeToAvoidBottomPadding: true,
-        body:Stack(
-          fit: StackFit.expand,
-          children: <Widget>[
+        body:SingleChildScrollView(
+          child:
             Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
               children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(top: 20.0),
-                  child: Image.asset(name),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 28.0,right: 28.0, top: 60.0),
-                  child: Column(
-                    children: <Widget>[
-                      Row(
+               Column(
+                  children: <Widget>[
+                  Container(
+                    color: MyColor.kj_red,
+                    height: MediaQuery.of(context).size.height * 0.40,
+                    width: double.maxFinite,
+                    child: SafeArea(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Image.asset("assets/")
+                          Container(
+                            margin: EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 40.0),
+                              child: Image.asset("assets/images/logo.jpg",height: 40.0,),
+                            ),
+                            width: MediaQuery.of(context).size.width * 0.50,
+                            height: MediaQuery.of(context).size.height * 0.13,
+                          ),
+                          Container(
+                            margin: EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
+                            child: Padding(
+                              padding: EdgeInsets.only(right: 40.0, left:5.0, top:20.0 ),
+                              child: Image.asset("assets/images/login_logo2.png",width: 10,),
+                            ),
+                            width: MediaQuery.of(context).size.width * 0.50,
+                            height: MediaQuery.of(context).size.height * 0.13,
+                          ),
                         ],
-                      )
-                    ],
+                      ),
+                    ),
                   ),
-                )
-              ],
-            )
-          ],
-        )
-//                      SizedBox(height: 30.0),
-//                      _buildEmailTF(),
-//                      SizedBox(
-//                        height: 30.0,
-//                      ),
-//                      _buildPasswordTF(),
-//                      _buildForgotPasswordBtn(),
-//                      _buildRememberMeCheckbox(),
-//                      _buildLoginBtn(),
-//                      _buildSignInWithText(),
-//                      _buildSocialBtnRow(),
-//                      _buildSignupBtn(),
+                ],
+              ),
+              Positioned(
+                  top: 200.0,
+                  left: 10.0,
+                  right: 10.0,
+                  child: Card(
+                    color: Colors.white,
+                    elevation: 8.0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: <Widget>[
+                          Center(
+                              child: Text('Login',style: TextStyle(
+                            fontSize: 20.0,
+                            color: MyColor.som_blue,
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.bold,
+                          ),)),
+                          SizedBox(height: 20.0,),
+                          _buildEmailTF(),
+                          SizedBox(height: 20.0,),
+                          _buildPasswordTF(),
+                          SizedBox(height: 20.0,),
+                          _buildRememberMeCheckbox(),
+                          SizedBox(height: 20.0,),
+                          _buildLoginBtn(),
+                          SizedBox(height: 20.0,),
+                          _buildSignInWithText(),
+                          _buildSocialBtnRow(),
+                        ],
+                      ),
+                    ),
+                  )
+              ),
 
-    );
+
+//            _buildSignupBtn(),
+
+            ],
+          ),
+        ));
   }
 }
