@@ -1,9 +1,22 @@
 import 'dart:math';
+import 'package:attedancerecordsystm/auth.dart';
+import 'package:attedancerecordsystm/screens/Home.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:attedancerecordsystm/values/MyColor.dart';
 import 'package:flutter/services.dart';
 import 'package:attedancerecordsystm/values/style.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'Home.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String login = prefs.getString("logged_in");
+  runApp(MaterialApp(home: login == 'true' ? Login() : HomeScreen()));
+}
 class Login extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
@@ -15,32 +28,39 @@ class _LoginState extends State<Login> {
   Widget _buildEmailTF() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(
-          'SVV Net ID',
-          style: kLabelStyle,
-        ),
+      children: [
+        Padding(
+            padding: EdgeInsets.fromLTRB(10.0, 0, 0, 0),
+            child: Text(
+              'SVV Net ID',
+              style: kLabelStyle,
+            )),
         SizedBox(height: 10.0),
         Container(
           alignment: Alignment.centerLeft,
           decoration: kBoxDecorationStyle,
           height: 60.0,
           child: TextField(
-            keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
+            keyboardType:
+                TextInputType.numberWithOptions(signed: false, decimal: false),
             style: TextStyle(
-              color: Colors.white,
+              color: Colors.black87,
               fontFamily: 'OpenSans',
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
             ),
             maxLength: 6,
             decoration: InputDecoration(
               border: InputBorder.none,
+//              labelText: "SVV Net ID",
               contentPadding: EdgeInsets.only(top: 14.0),
               prefixIcon: Icon(
                 Icons.domain,
-                color: Colors.white,
+                color: Colors.grey[800],
               ),
               hintText: 'Enter your SVV Net ID',
               hintStyle: kHintTextStyle,
+              counterText: '',
             ),
           ),
         ),
@@ -52,9 +72,12 @@ class _LoginState extends State<Login> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
-          'Password',
-          style: kLabelStyle,
+        Padding(
+          padding: EdgeInsets.fromLTRB(10.0, 0, 0, 0),
+          child: Text(
+            'Password',
+            style: kLabelStyle,
+          ),
         ),
         SizedBox(height: 10.0),
         Container(
@@ -64,15 +87,17 @@ class _LoginState extends State<Login> {
           child: TextField(
             obscureText: true,
             style: TextStyle(
-              color: Colors.white,
+              color: Colors.black87,
               fontFamily: 'OpenSans',
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
             ),
             decoration: InputDecoration(
               border: InputBorder.none,
               contentPadding: EdgeInsets.only(top: 14.0),
               prefixIcon: Icon(
                 Icons.lock,
-                color: Colors.white,
+                color: Colors.grey[800],
               ),
               hintText: 'Enter your Password',
               hintStyle: kHintTextStyle,
@@ -103,11 +128,11 @@ class _LoginState extends State<Login> {
       child: Row(
         children: <Widget>[
           Theme(
-            data: ThemeData(unselectedWidgetColor: Colors.white),
+            data: ThemeData(unselectedWidgetColor: Colors.grey[300]),
             child: Checkbox(
               value: _rememberMe,
               checkColor: Colors.green,
-              activeColor: Colors.white,
+              activeColor: Colors.grey[300],
               onChanged: (value) {
                 setState(() {
                   _rememberMe = value;
@@ -126,7 +151,7 @@ class _LoginState extends State<Login> {
 
   Widget _buildLoginBtn() {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 25.0),
+      padding: EdgeInsets.symmetric(vertical: 10.0),
       width: double.infinity,
       child: RaisedButton(
         elevation: 5.0,
@@ -135,7 +160,7 @@ class _LoginState extends State<Login> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
         ),
-        color: Colors.white,
+        color: Color(0xfff9fcfb),
         child: Text(
           'LOGIN',
           style: TextStyle(
@@ -167,7 +192,7 @@ class _LoginState extends State<Login> {
         ),
       ],
     );
-    }
+  }
 
   Widget _buildSocialBtn(Function onTap, AssetImage logo) {
     return GestureDetector(
@@ -200,7 +225,10 @@ class _LoginState extends State<Login> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           _buildSocialBtn(
-                () => print('Login with Google'),
+            (){
+              print('Login with Google');
+              _signIn(context).then((FirebaseUser user) => print(user)).catchError((e)=>print(e));
+            },
             AssetImage(
               'assets/images/google.jpg',
             ),
@@ -237,93 +265,182 @@ class _LoginState extends State<Login> {
 //      ),
 //    );
 //  }
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = new GoogleSignIn();
+  SharedPreferences prefs;
+
+  Future<FirebaseUser> _signIn(BuildContext context) async {
+
+//    final snackBar = SnackBar(
+//      content: new Text('Sign in'),
+//    );
+//    _scaffoldKey.currentState.showSnackBar(snackBar);
+
+    final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
+    final GoogleSignInAuthentication googleAuth =await googleUser.authentication;
+
+    final AuthCredential credential = GoogleAuthProvider.getCredential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    FirebaseUser userDetails = (await _firebaseAuth.signInWithCredential(credential)).user;
+    ProviderDetails providerInfo = new ProviderDetails(userDetails.providerId);
+
+    List<ProviderDetails> providerData = new List<ProviderDetails>();
+    providerData.add(providerInfo);
+
+    UserDetails details = new UserDetails(
+      userDetails.providerId,
+      userDetails.displayName,
+      userDetails.photoUrl,
+      userDetails.email,
+      providerData,
+    );
+    _addNewItem(details);
+//    print(readAll());
+//    print(_items);
+//    Navigator.pushReplacementNamed(context, '/home', arguments: {
+//      'detailsUser':details,
+    Navigator.pushReplacementNamed(context, '/home');
+    return userDetails;
+  }
+
+  void _addNewItem(UserDetails details) async {
+    print('Writing everything');
+    prefs = await SharedPreferences.getInstance();
+    prefs.setString('email', details.userEmail);
+    prefs.setString('name', details.userName);
+    prefs.setString('photoUrl', details.photoURL);
+    prefs.setString('logged_in', 'true');
+  }
+
+//  void readAll() async {
+//    prefs = await SharedPreferences.getInstance();
+//    String login = prefs.getString('logged_in');
+//    print("login:$login");
+//    if(login == 'true')
+//      Navigator.pushReplacementNamed(context, '/home');
+//    else
+//        log = false;
+//  }
+
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
 
   @override
+  void initState(){
+    print("Before Init");
+    super.initState();
+//    print(_items);
+  }
+
   Widget build(BuildContext context) {
+    print("log$log");
     return Scaffold(
       backgroundColor: Colors.white,
-       resizeToAvoidBottomPadding: true,
-        body:SingleChildScrollView(
-          child:
-            Column(
-              children: <Widget>[
-               Column(
-                  children: <Widget>[
-                  Container(
-                    color: MyColor.kj_red,
-                    height: MediaQuery.of(context).size.height * 0.40,
-                    width: double.maxFinite,
-                    child: SafeArea(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Container(
-                            margin: EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
-                            child: Padding(
-                              padding: EdgeInsets.only(left: 40.0),
-                              child: Image.asset("assets/images/logo.jpg",height: 40.0,),
-                            ),
-                            width: MediaQuery.of(context).size.width * 0.50,
-                            height: MediaQuery.of(context).size.height * 0.13,
-                          ),
-                          Container(
-                            margin: EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
-                            child: Padding(
-                              padding: EdgeInsets.only(right: 40.0, left:5.0, top:20.0 ),
-                              child: Image.asset("assets/images/login_logo2.png",width: 10,),
-                            ),
-                            width: MediaQuery.of(context).size.width * 0.50,
-                            height: MediaQuery.of(context).size.height * 0.13,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Positioned(
-                  top: 200.0,
-                  left: 10.0,
-                  right: 10.0,
-                  child: Card(
-                    color: Colors.white,
-                    elevation: 8.0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        children: <Widget>[
-                          Center(
-                              child: Text('Login',style: TextStyle(
-                            fontSize: 20.0,
-                            color: MyColor.som_blue,
-                            fontFamily: 'Roboto',
-                            fontWeight: FontWeight.bold,
-                          ),)),
-                          SizedBox(height: 20.0,),
-                          _buildEmailTF(),
-                          SizedBox(height: 20.0,),
-                          _buildPasswordTF(),
-                          SizedBox(height: 20.0,),
-                          _buildRememberMeCheckbox(),
-                          SizedBox(height: 20.0,),
-                          _buildLoginBtn(),
-                          SizedBox(height: 20.0,),
-                          _buildSignInWithText(),
-                          _buildSocialBtnRow(),
-                        ],
-                      ),
-                    ),
-                  )
-              ),
-
-
-//            _buildSignupBtn(),
-
-            ],
-          ),
-        ));
+      key: _scaffoldKey,
+      resizeToAvoidBottomPadding: true,
+      body: _createStack(),
+    );
   }
+
+  _createStack() {
+    return ListView(children: [
+      Container(
+        height: MediaQuery.of(context).size.height * 0.2,
+        width: MediaQuery.of(context).size.width * 1,
+        decoration: BoxDecoration(
+          color: MyColor.kj_red,
+          border: Border.all(color: MyColor.kj_red),
+        ),
+        child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Container(
+//                margin: EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
+                child: Image.asset(
+                  "assets/images/logo.jpg",
+                  height: 40.0,
+                ),
+                width: MediaQuery.of(context).size.width * 0.49,
+                height: MediaQuery.of(context).size.height * 0.13,
+              ),
+              Container(
+//                margin: EdgeInsets.fromLTRB(0.0, 20.0, 0.0, 0.0),
+                child: Image.asset(
+                  "assets/images/login_logo2.png",
+                  width: 10,
+                ),
+                width: MediaQuery.of(context).size.width * 0.49,
+                height: MediaQuery.of(context).size.height * 0.13,
+              ),
+            ]),
+      ),
+      Stack(children: [
+        Container(
+          height: MediaQuery.of(context).size.height * 0.1,
+          decoration: BoxDecoration(
+            border: Border.all(color: MyColor.kj_red),
+            color: MyColor.kj_red,
+          ),
+        ),
+        Card(
+          color: Colors.white,
+          elevation: 8.0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25.0),
+          ),
+          shadowColor: Colors.grey[800],
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              children: <Widget>[
+                Center(
+                    child: Text(
+                  'Login',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    color: MyColor.som_blue,
+                    fontFamily: 'Roboto',
+                    fontWeight: FontWeight.bold,
+                  ),
+                )),
+                SizedBox(
+                  height: 20.0,
+                ),
+                _buildEmailTF(),
+                SizedBox(
+                  height: 20.0,
+                ),
+                _buildPasswordTF(),
+                SizedBox(
+                  height: 20.0,
+                ),
+                _buildRememberMeCheckbox(),
+                _buildForgotPasswordBtn(),
+                _buildLoginBtn(),
+                SizedBox(
+                  height: 10.0,
+                ),
+                _buildSignInWithText(),
+                _buildSocialBtnRow(),
+
+              ],
+            ),
+          ),
+        ),
+      ]),
+    ]);
+  }
+
+
 }
+class _SecItem {
+  _SecItem(this.key, this.value);
+
+  final String key;
+  final String value;
+}
+
