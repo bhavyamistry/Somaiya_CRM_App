@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 class Launcher extends StatefulWidget {
   @override
   _LauncherState createState() => _LauncherState();
@@ -7,7 +8,12 @@ class Launcher extends StatefulWidget {
 class _LauncherState extends State<Launcher> {
   Future<bool> _nextscreen() async{
     await Future.delayed(Duration(milliseconds: 5000),(){});
-    return true;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String login = prefs.getString("logged_in");
+    if(login== "true")
+      return true;
+    else
+      return false;
   }
 
   @override
@@ -15,7 +21,7 @@ class _LauncherState extends State<Launcher> {
     super.initState();
     _nextscreen().then(
         (status){
-          if(status)
+          if(!status)
           {
             Navigator.pushNamed(context, '/login');
           }
@@ -60,4 +66,7 @@ class _LauncherState extends State<Launcher> {
       ),
     );
   }
+
+  
+
 }

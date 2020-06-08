@@ -11,12 +11,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Home.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String login = prefs.getString("logged_in");
-  runApp(MaterialApp(home: login == 'true' ? Login() : HomeScreen()));
-}
 class Login extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
@@ -225,9 +219,11 @@ class _LoginState extends State<Login> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           _buildSocialBtn(
-            (){
+            () {
               print('Login with Google');
-              _signIn(context).then((FirebaseUser user) => print(user)).catchError((e)=>print(e));
+              _signIn(context)
+                  .then((FirebaseUser user) => print(user))
+                  .catchError((e) => print(e));
             },
             AssetImage(
               'assets/images/google.jpg',
@@ -270,21 +266,22 @@ class _LoginState extends State<Login> {
   SharedPreferences prefs;
 
   Future<FirebaseUser> _signIn(BuildContext context) async {
-
 //    final snackBar = SnackBar(
 //      content: new Text('Sign in'),
 //    );
 //    _scaffoldKey.currentState.showSnackBar(snackBar);
 
     final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
-    final GoogleSignInAuthentication googleAuth =await googleUser.authentication;
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
 
     final AuthCredential credential = GoogleAuthProvider.getCredential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
 
-    FirebaseUser userDetails = (await _firebaseAuth.signInWithCredential(credential)).user;
+    FirebaseUser userDetails =
+        (await _firebaseAuth.signInWithCredential(credential)).user;
     ProviderDetails providerInfo = new ProviderDetails(userDetails.providerId);
 
     List<ProviderDetails> providerData = new List<ProviderDetails>();
@@ -317,51 +314,66 @@ class _LoginState extends State<Login> {
 
   Future<bool> readAll() async {
     prefs = await SharedPreferences.getInstance();
-    print("login:${ prefs.getString('logged_in')}");
-    if(prefs.getString('logged_in') == 'true') {
+    print("login:${prefs.getString('logged_in')}");
+    if (prefs.getString('logged_in') == 'true') {
       Navigator.pushReplacementNamed(context, '/home');
       return true;
-    }
-    else{
+    } else {
       print("False");
       return false;
     }
+  }
 
+  Future showAlert(BuildContext context) async {
+ 
+    await Future.delayed(Duration(seconds: 0));
+ 
+    showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: new Text('Welcome To Our App :) .'),
+        actions: <Widget>[
+          FlatButton(
+            child: new Text("OK"),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+     },
+    );
   }
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-
   @override
-  void initState(){
+  void initState() {
+    showAlert(context);
     print("Before Init");
     super.initState();
 //    print(_items);
   }
 
   Widget build(BuildContext context) {
-      print("Build method called before");
-      print("Build method called after");
-      readAll().then((value){
-        new Future.delayed(new Duration(seconds: 3), (){
-          if (!value) {
-            return Scaffold(
-              backgroundColor: Colors.white,
-              key: _scaffoldKey,
-              resizeToAvoidBottomPadding: true,
-              body: _createStack(),
-            );
-          }
-        });
-      });
-      return ShowDialog();
+    print("Build method called before");
+    print("Build method called after");
+    return Scaffold(
+      backgroundColor: Colors.white,
+      key: _scaffoldKey,
+      resizeToAvoidBottomPadding: true,
+      body: _createStack(),
+    );
+    // return ShowDialog();
 //      return Scaffold(
 //      backgroundColor: Colors.white,
 //      key: _scaffoldKey,
 //      resizeToAvoidBottomPadding: true,
 //      body: _createStack(),
 //      );
-    }
+  }
+
   _createStack() {
     return ListView(children: [
       Container(
@@ -443,7 +455,6 @@ class _LoginState extends State<Login> {
                 ),
                 _buildSignInWithText(),
                 _buildSocialBtnRow(),
-
               ],
             ),
           ),
@@ -452,7 +463,42 @@ class _LoginState extends State<Login> {
     ]);
   }
 
-  Widget ShowDialog() {}
-
-
+  showMyDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0)), //this right here
+            child: Container(
+              height: 200,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'What do you want to remember?'),
+                    ),
+                    SizedBox(
+                      width: 320.0,
+                      child: RaisedButton(
+                        onPressed: () {},
+                        child: Text(
+                          "Save",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        color: const Color(0xFF1BC0C5),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+  }
 }
