@@ -315,15 +315,19 @@ class _LoginState extends State<Login> {
     prefs.setString('logged_in', 'true');
   }
 
-//  void readAll() async {
-//    prefs = await SharedPreferences.getInstance();
-//    String login = prefs.getString('logged_in');
-//    print("login:$login");
-//    if(login == 'true')
-//      Navigator.pushReplacementNamed(context, '/home');
-//    else
-//        log = false;
-//  }
+  Future<bool> readAll() async {
+    prefs = await SharedPreferences.getInstance();
+    print("login:${ prefs.getString('logged_in')}");
+    if(prefs.getString('logged_in') == 'true') {
+      Navigator.pushReplacementNamed(context, '/home');
+      return true;
+    }
+    else{
+      print("False");
+      return false;
+    }
+
+  }
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -336,15 +340,28 @@ class _LoginState extends State<Login> {
   }
 
   Widget build(BuildContext context) {
-    print("log$log");
-    return Scaffold(
-      backgroundColor: Colors.white,
-      key: _scaffoldKey,
-      resizeToAvoidBottomPadding: true,
-      body: _createStack(),
-    );
-  }
-
+      print("Build method called before");
+      print("Build method called after");
+      readAll().then((value){
+        new Future.delayed(new Duration(seconds: 3), (){
+          if (!value) {
+            return Scaffold(
+              backgroundColor: Colors.white,
+              key: _scaffoldKey,
+              resizeToAvoidBottomPadding: true,
+              body: _createStack(),
+            );
+          }
+        });
+      });
+      return ShowDialog();
+//      return Scaffold(
+//      backgroundColor: Colors.white,
+//      key: _scaffoldKey,
+//      resizeToAvoidBottomPadding: true,
+//      body: _createStack(),
+//      );
+    }
   _createStack() {
     return ListView(children: [
       Container(
@@ -435,12 +452,8 @@ class _LoginState extends State<Login> {
     ]);
   }
 
+  Widget ShowDialog() {}
 
-}
-class _SecItem {
-  _SecItem(this.key, this.value);
 
-  final String key;
-  final String value;
 }
 
