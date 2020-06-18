@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:attedancerecordsystm/values/style.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:attedancerecordsystm/service/ApiCall.dart';
 import 'Home.dart';
 
 class Login extends StatefulWidget {
@@ -18,6 +19,23 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   bool _rememberMe = false;
+  TextEditingController nameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  bool _validate = false;
+  FocusNode _emailFocusNode = FocusNode();
+  FocusNode _passwordFocusNode = FocusNode();
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  void fieldFocusChange(BuildContext context, FocusNode currentFocus,FocusNode nextFocus) {
+  currentFocus.unfocus();
+  FocusScope.of(context).requestFocus(nextFocus);
+}
 
   Widget _buildEmailTF() {
     return Column(
@@ -34,20 +52,30 @@ class _LoginState extends State<Login> {
           alignment: Alignment.centerLeft,
           decoration: kBoxDecorationStyle,
           height: 60.0,
-          child: TextField(
+          child: TextFormField(
+            autofocus: true,
+            focusNode: _emailFocusNode,
+            controller: nameController,
+            maxLines: 1,
+            minLines: 1,
             keyboardType:
-                TextInputType.numberWithOptions(signed: false, decimal: false),
+                TextInputType.numberWithOptions(signed: false,decimal: false),
+            inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
+            textInputAction: TextInputAction.next,
             style: TextStyle(
               color: Colors.black87,
               fontFamily: 'OpenSans',
               fontWeight: FontWeight.bold,
               fontSize: 18,
             ),
-            maxLength: 6,
+            maxLength: 10,
             decoration: InputDecoration(
+              errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.circular(10.0)),
               border: InputBorder.none,
 //              labelText: "SVV Net ID",
-              contentPadding: EdgeInsets.only(top: 14.0),
+              contentPadding: EdgeInsets.only(top: 7.0, bottom: 7.0),
               prefixIcon: Icon(
                 Icons.domain,
                 color: Colors.grey[800],
@@ -55,7 +83,19 @@ class _LoginState extends State<Login> {
               hintText: 'Enter your SVV Net ID',
               hintStyle: kHintTextStyle,
               counterText: '',
+              errorStyle:
+                  TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
             ),
+            validator: (value){
+              if (value.length <6) {
+                return "Invalid SVV Net ID";}
+              else{
+                return null;
+              }
+            },
+            onFieldSubmitted: (_){
+              fieldFocusChange(context, _emailFocusNode, _passwordFocusNode);
+            },
           ),
         ),
       ],
@@ -78,7 +118,8 @@ class _LoginState extends State<Login> {
           alignment: Alignment.centerLeft,
           decoration: kBoxDecorationStyle,
           height: 60.0,
-          child: TextField(
+          child: TextFormField(
+            controller: passwordController,
             obscureText: true,
             style: TextStyle(
               color: Colors.black87,
@@ -149,7 +190,15 @@ class _LoginState extends State<Login> {
       width: double.infinity,
       child: RaisedButton(
         elevation: 5.0,
-        onPressed: () => print('Login Button Pressed'),
+        onPressed: () async {
+          print('Login Button Pressed');
+          setState(() {
+            nameController.text.isEmpty ? _validate = true : _validate = false;
+          });
+          UserLogin user = UserLogin();
+          await user.getCredentials(nameController.text, passwordController.text, 'student');
+
+        },
         padding: EdgeInsets.all(15.0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
@@ -325,24 +374,23 @@ class _LoginState extends State<Login> {
   }
 
   Future showAlert(BuildContext context) async {
- 
     await Future.delayed(Duration(seconds: 0));
- 
+
     showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: new Text('Welcome To Our App :) .'),
-        actions: <Widget>[
-          FlatButton(
-            child: new Text("OK"),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-     },
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: new Text('Welcome To Our App :) .'),
+          actions: <Widget>[
+            FlatButton(
+              child: new Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
