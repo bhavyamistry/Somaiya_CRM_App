@@ -7,6 +7,8 @@ class MyColor
   static const kj_red = const Color(0xffa12023);
   static const som_blue = const Color(0xff0a4f9d);
   static const som_grey = const Color(0xff848484);
+  static const login_success = const Color(0xff438a5e);
+  static const login_fail = const Color(0xffd92027);
 
 //  Color(0xffa12023),
 //  Color(0xffcb2d3e),

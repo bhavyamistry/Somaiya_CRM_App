@@ -1,4 +1,3 @@
-
 import 'package:attedancerecordsystm/values/MyColor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -24,7 +23,7 @@ class _LoadingState extends State<Loading> with TickerProviderStateMixin {
     return Material(
       type: MaterialType.transparency,
       child: Container(
-        color: MyColor.kj_red,
+        color: Colors.transparent,
         child: Center(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,

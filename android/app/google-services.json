@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "37307013493-bgphdl8ve9lm15smpsvfc86lsam5veq6.apps.googleusercontent.com",
+          "client_id": "37307013493-54mt6qklfjutlvev915ojisfutp872h5.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.attedancerecordsystm",
-            "certificate_hash": "432c4a42aa63c8637b8e6014de4b6e0de54c310c"
+            "certificate_hash": "2c79e092d2d2b1c96a57f4923112035ba3a9fd47"
           }
         },
         {

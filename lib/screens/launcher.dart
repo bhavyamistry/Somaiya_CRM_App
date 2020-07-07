@@ -6,7 +6,8 @@ class Launcher extends StatefulWidget {
 }
 
 class _LauncherState extends State<Launcher> {
-  Future<bool> _nextscreen() async{
+  Future<bool> _nextscreen() async
+  {
     await Future.delayed(Duration(milliseconds: 5000),(){});
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String login = prefs.getString("logged_in");
@@ -61,7 +62,6 @@ class _LauncherState extends State<Launcher> {
               )
             ],
           )
-
         ],
       ),
     );

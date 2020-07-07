@@ -17,7 +17,13 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   SharedPreferences prefs;
-  String name = '', email = '', photoUrl = '';
+  String name = '',
+      email = '',
+      photoUrl = '',
+      sem = '',
+      roll = '',
+      batch = '',
+      svv = '';
   bool load = true;
   Future<void> _readAll() async {
     prefs = await _prefs;
@@ -25,6 +31,13 @@ class _HomeScreenState extends State<HomeScreen> {
       name = prefs.getString('name');
       email = prefs.getString('email');
       photoUrl = prefs.getString('photoUrl');
+      sem = prefs.getString('sem');
+      roll = prefs.getString('roll');
+      batch = prefs.getString('batch');
+      svv = prefs.getString('svv');
+      // name = 'name';
+      // email = 'email';
+      // photoUrl = 'photoUrl';
     });
     // print(prefs.getString('email')+prefs.getString('name')+prefs.getString('photoUrl'));
   }
@@ -47,9 +60,14 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         onSelected: (int a) {
           if (a == 1) {
-            prefs.remove('name');
             prefs.remove('email');
+            prefs.remove('name');
             prefs.remove('photoUrl');
+            prefs.remove('roll');
+            prefs.remove('svv');
+            prefs.remove('sem');
+            prefs.remove('batch');
+            prefs.remove('gender');
             prefs.remove('logged_in');
             Navigator.popAndPushNamed(context, '/login');
           }
@@ -95,15 +113,19 @@ class _HomeScreenState extends State<HomeScreen> {
     return load
         ? Loading("Logging In...")
         : Scaffold(
+            resizeToAvoidBottomPadding: false,
+            resizeToAvoidBottomInset: false,
             body: Stack(
               children: <Widget>[
-                Container(
-                  height: size.height * .45,
-                  decoration: BoxDecoration(
-                    color: MyColor.kj_red,
-                    borderRadius: new BorderRadius.only(
-                        bottomLeft: Radius.circular(40.0),
-                        bottomRight: Radius.circular(40.0)),
+                Flexible(
+                  child: Container(
+                    height: size.height * .45,
+                    decoration: BoxDecoration(
+                      color: MyColor.kj_red,
+                      borderRadius: new BorderRadius.only(
+                          bottomLeft: Radius.circular(40.0),
+                          bottomRight: Radius.circular(40.0)),
+                    ),
                   ),
                 ),
                 SafeArea(
@@ -136,29 +158,31 @@ class _HomeScreenState extends State<HomeScreen> {
                               SizedBox(
                                 width: size.width * .07,
                               ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Text(
-                                    name,
-                                    // '',
-                                    style: GoogleFonts.nunito(
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  SizedBox(
-                                    height: size.height * .013,
-                                  ),
-                                  Text(
-                                    "2220190371",
-                                    style: GoogleFonts.roboto(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
+                              Flexible(
+                                  child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      name,
+                                      // '',
+                                      style: GoogleFonts.nunito(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(
+                                      height: size.height * .013,
+                                    ),
+                                    Text(
+                                      '',
+                                      style: GoogleFonts.roboto(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
                               )
                             ],
                           ),
@@ -176,28 +200,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Container(
                                   width: (size.width - 0.35) / 3,
                                   child: Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        Text(
-                                          'Semester',
-                                          style: GoogleFonts.nunito(
-                                              color: Colors.white,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        SizedBox(
-                                          height: size.height * .01,
-                                        ),
-                                        Text(
-                                          '5',
-                                          style: GoogleFonts.nunito(
-                                              color: Colors.white,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
+                                    child: Flexible(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: <Widget>[
+                                          Text(
+                                            'Semester',
+                                            style: GoogleFonts.nunito(
+                                                color: Colors.white,
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          SizedBox(
+                                            height: size.height * .01,
+                                          ),
+                                          Text(
+                                            sem,
+                                            style: GoogleFonts.nunito(
+                                                color: Colors.white,
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -221,7 +247,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           height: size.height * .01,
                                         ),
                                         Text(
-                                          '32',
+                                          roll,
                                           style: GoogleFonts.nunito(
                                               color: Colors.white,
                                               fontSize: 20,
@@ -251,7 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           height: size.height * .01,
                                         ),
                                         Text(
-                                          '2',
+                                          batch,
                                           style: GoogleFonts.nunito(
                                               color: Colors.white,
                                               fontSize: 20,

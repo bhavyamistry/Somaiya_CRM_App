@@ -11,6 +11,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:attedancerecordsystm/service/ApiCall.dart';
 import 'Home.dart';
+import 'AlertDialog.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -32,10 +33,11 @@ class _LoginState extends State<Login> {
     super.dispose();
   }
 
-  void fieldFocusChange(BuildContext context, FocusNode currentFocus,FocusNode nextFocus) {
-  currentFocus.unfocus();
-  FocusScope.of(context).requestFocus(nextFocus);
-}
+  void fieldFocusChange(
+      BuildContext context, FocusNode currentFocus, FocusNode nextFocus) {
+    currentFocus.unfocus();
+    FocusScope.of(context).requestFocus(nextFocus);
+  }
 
   Widget _buildEmailTF() {
     return Column(
@@ -59,7 +61,7 @@ class _LoginState extends State<Login> {
             maxLines: 1,
             minLines: 1,
             keyboardType:
-                TextInputType.numberWithOptions(signed: false,decimal: false),
+                TextInputType.numberWithOptions(signed: false, decimal: false),
             inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
             textInputAction: TextInputAction.next,
             style: TextStyle(
@@ -86,20 +88,30 @@ class _LoginState extends State<Login> {
               errorStyle:
                   TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
             ),
-            validator: (value){
-              if (value.length <6) {
-                return "Invalid SVV Net ID";}
-              else{
+            validator: (value) {
+              if (value.length < 6) {
+                return "Invalid SVV Net ID";
+              } else {
                 return null;
               }
             },
-            onFieldSubmitted: (_){
+            onFieldSubmitted: (_) {
               fieldFocusChange(context, _emailFocusNode, _passwordFocusNode);
             },
           ),
         ),
       ],
     );
+  }
+  bool _obscureText = true;
+
+  String _password;
+
+  // Toggles the password show status
+  void _toggle() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
   }
 
   Widget _buildPasswordTF() {
@@ -117,27 +129,37 @@ class _LoginState extends State<Login> {
         Container(
           alignment: Alignment.centerLeft,
           decoration: kBoxDecorationStyle,
-          height: 60.0,
-          child: TextFormField(
-            controller: passwordController,
-            obscureText: true,
-            style: TextStyle(
-              color: Colors.black87,
-              fontFamily: 'OpenSans',
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.only(top: 14.0),
-              prefixIcon: Icon(
-                Icons.lock,
-                color: Colors.grey[800],
+          height: 80.0,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              TextFormField(
+                controller: passwordController,
+                onSaved: (val) => _password = val,
+                obscureText: _obscureText,
+                style: TextStyle(
+                  color: Colors.black87,
+                  fontFamily: 'OpenSans',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.only(top: 14.0),
+                  prefixIcon: Icon(
+                    Icons.lock,
+                    color: Colors.grey[800],
+                  ),
+                  hintText: 'Enter your Password',
+                  hintStyle: kHintTextStyle,
+                ),
               ),
-              hintText: 'Enter your Password',
-              hintStyle: kHintTextStyle,
-            ),
+              new FlatButton(
+                  onPressed: _toggle,
+                  child: new Icon(_obscureText ? Icons.visibility : Icons.visibility_off,size: 25,))
+            ],
           ),
+
         ),
       ],
     );
@@ -196,8 +218,55 @@ class _LoginState extends State<Login> {
             nameController.text.isEmpty ? _validate = true : _validate = false;
           });
           UserLogin user = UserLogin();
-          await user.getCredentials(nameController.text, passwordController.text, 'student');
+          await user
+              .getCredentials(
+                  nameController.text, passwordController.text, 'student')
+              .then((value) async {
+            print("value is:$value");
+            var l1 = value[0];
+            print(l1['success']);
+            print(l1['success'].runtimeType);
+            // succeed = int.parse(l1['success']);
+            StudentUserDetails details;
+            if (l1['success'] == 1) {
+              Navigator.of(context).push(
+                PageRouteBuilder(
+                    pageBuilder: (context, _, __) => openCustomDialog(context,'Login Successfull!',MyColor.login_success),
+                    opaque: false),
+              );
+              var l2 = value[1];
+              String name =
+                  l2['F_name'] + ' ' + l2['M_name'] + ' ' + l2['L_name'];
+              details = new StudentUserDetails(
+                  name,
+                  l2['img'],
+                  l2['S_email'],
+                  l2['roll'],
+                  l2['S_id'],
+                  l2['batch'],
+                  l2['current_sem'],
+                  l2['gender']);
+              _addUserInformation(details);
 
+              print(readAll());
+            } else {
+              details = new StudentUserDetails(
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+              );
+              Navigator.of(context).push(
+                PageRouteBuilder(
+                    pageBuilder: (context, _, __) => openCustomDialog(context,'Authentication Failed Check ID or Password',MyColor.login_fail),
+                    opaque: false),
+              );
+            }
+          });
         },
         padding: EdgeInsets.all(15.0),
         shape: RoundedRectangleBorder(
@@ -268,7 +337,7 @@ class _LoginState extends State<Login> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           _buildSocialBtn(
-            () {
+            () async {
               print('Login with Google');
               _signIn(context)
                   .then((FirebaseUser user) => print(user))
@@ -313,6 +382,8 @@ class _LoginState extends State<Login> {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = new GoogleSignIn();
   SharedPreferences prefs;
+  bool fetched = false;
+  int succeed = 0;
 
   Future<FirebaseUser> _signIn(BuildContext context) async {
 //    final snackBar = SnackBar(
@@ -332,32 +403,78 @@ class _LoginState extends State<Login> {
     FirebaseUser userDetails =
         (await _firebaseAuth.signInWithCredential(credential)).user;
     ProviderDetails providerInfo = new ProviderDetails(userDetails.providerId);
-
     List<ProviderDetails> providerData = new List<ProviderDetails>();
     providerData.add(providerInfo);
 
-    UserDetails details = new UserDetails(
-      userDetails.providerId,
-      userDetails.displayName,
-      userDetails.photoUrl,
-      userDetails.email,
-      providerData,
-    );
-    _addNewItem(details);
-//    print(readAll());
-//    print(_items);
-//    Navigator.pushReplacementNamed(context, '/home', arguments: {
-//      'detailsUser':details,
-    Navigator.pushReplacementNamed(context, '/home');
+    GoogleUserLogin user = GoogleUserLogin();
+    StudentUserDetailsGoogle details;
+    await user
+        .getCredentialsFromEmail('bhavya.mistry@somaiya.edu', 'student')
+        .then((value) {
+      print("value is:$value");
+      var l1 = value[0];
+      print(l1['success']);
+      print(l1['success'].runtimeType);
+      // succeed = int.parse(l1['success']);
+      if (l1['success'] == 1) {
+        var l2 = value[1];
+        String name = l2['F_name'] + ' ' + l2['M_name'] + ' ' + l2['L_name'];
+        details = new StudentUserDetailsGoogle(
+            userDetails.providerId,
+            name,
+            userDetails.photoUrl,
+            userDetails.email,
+            providerData,
+            l2['roll'],
+            l2['S_id'],
+            l2['batch'],
+            l2['current_sem']);
+        _addUserInformation(details);
+        print(readAll());
+      } else {
+        details = new StudentUserDetailsGoogle(
+            '', '', '', '', providerData, '', '', '', '');
+        Navigator.of(context).push(
+          PageRouteBuilder(
+            pageBuilder: (BuildContext context, Animation<double> animation,
+                Animation<double> secondaryAnimation) {
+              return openCustomDialog(context,'Authentication Failed Check ID or Password',MyColor.login_fail);
+            },
+            transitionsBuilder: (BuildContext context,
+                    Animation<double> animation,
+                    Animation<double> secondaryAnimation,
+                    Widget child) =>
+                SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(-9, 0),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                ),
+            transitionDuration: Duration(milliseconds: 1000),
+          ),
+        );
+//        Navigator.of(context).push(
+//          PageRouteBuilder(
+//              pageBuilder: (context, _, __) => openCustomDialog(context),
+//              opaque: false),
+//        );
+      }
+    });
     return userDetails;
   }
 
-  void _addNewItem(UserDetails details) async {
+  void _addUserInformation(var details) async {
     print('Writing everything');
     prefs = await SharedPreferences.getInstance();
     prefs.setString('email', details.userEmail);
     prefs.setString('name', details.userName);
     prefs.setString('photoUrl', details.photoURL);
+    prefs.setString('roll', details.userRoll);
+    prefs.setString('svv', details.userSvv);
+    prefs.setString('sem', details.sem);
+    prefs.setString('batch', details.batch);
+    prefs.setString('gender', details.gender);
     prefs.setString('logged_in', 'true');
   }
 
