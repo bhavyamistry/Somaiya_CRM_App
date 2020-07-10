@@ -9,6 +9,7 @@ class MyColor
   static const som_grey = const Color(0xff848484);
   static const login_success = const Color(0xff438a5e);
   static const login_fail = const Color(0xffd92027);
+  static const login_fail2 = const Color(0xffffffff);
 
 //  Color(0xffa12023),
 //  Color(0xffcb2d3e),

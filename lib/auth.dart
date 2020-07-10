@@ -8,9 +8,10 @@ class StudentUserDetailsGoogle
   final String userSvv;
   final String batch;
   final String sem;
+  final String gender;
   final List<ProviderDetails> providerData;
 
-  StudentUserDetailsGoogle(this.providerDetails, this.userName, this.photoURL, this.userEmail, this.providerData, this.userRoll, this.userSvv, this.batch, this.sem);
+  StudentUserDetailsGoogle(this.providerDetails, this.userName, this.photoURL, this.userEmail, this.providerData, this.userRoll, this.userSvv, this.batch, this.sem, this.gender);
 
 }
 class ProviderDetails

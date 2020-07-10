@@ -129,7 +129,7 @@ class _LoginState extends State<Login> {
         Container(
           alignment: Alignment.centerLeft,
           decoration: kBoxDecorationStyle,
-          height: 80.0,
+          height: 60.0,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -150,13 +150,15 @@ class _LoginState extends State<Login> {
                     Icons.lock,
                     color: Colors.grey[800],
                   ),
+                  suffixIcon: IconButton(
+                    icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility,size: 25,),
+                    onPressed: _toggle,
+                    color: Colors.grey[800],
+                  ),
                   hintText: 'Enter your Password',
                   hintStyle: kHintTextStyle,
                 ),
               ),
-              new FlatButton(
-                  onPressed: _toggle,
-                  child: new Icon(_obscureText ? Icons.visibility : Icons.visibility_off,size: 25,))
             ],
           ),
 
@@ -428,12 +430,13 @@ class _LoginState extends State<Login> {
             l2['roll'],
             l2['S_id'],
             l2['batch'],
-            l2['current_sem']);
+            l2['current_sem'],
+            l2['gender']);
         _addUserInformation(details);
         print(readAll());
       } else {
         details = new StudentUserDetailsGoogle(
-            '', '', '', '', providerData, '', '', '', '');
+            '', '', '', '', providerData, '', '', '', '','');
         Navigator.of(context).push(
           PageRouteBuilder(
             pageBuilder: (BuildContext context, Animation<double> animation,

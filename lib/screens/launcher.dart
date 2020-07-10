@@ -8,7 +8,7 @@ class Launcher extends StatefulWidget {
 class _LauncherState extends State<Launcher> {
   Future<bool> _nextscreen() async
   {
-    await Future.delayed(Duration(milliseconds: 5000),(){});
+    await Future.delayed(Duration(milliseconds: 4000),(){});
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String login = prefs.getString("logged_in");
     if(login== "true")
@@ -24,11 +24,11 @@ class _LauncherState extends State<Launcher> {
         (status){
           if(!status)
           {
-            Navigator.pushNamed(context, '/login');
+            Navigator.pushReplacementNamed(context, '/login');
           }
           else
           {
-            Navigator.pushNamed(context, '/home');
+            Navigator.pushReplacementNamed(context, '/home');
           }
         }
     );
@@ -52,8 +52,9 @@ class _LauncherState extends State<Launcher> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      CircleAvatar(
+                      CircleAvatar( 
                         backgroundImage: AssetImage('assets/images/logo.jpg'),
+                        backgroundColor: Colors.white,
                         radius: 100.0,
                       ),
                     ],

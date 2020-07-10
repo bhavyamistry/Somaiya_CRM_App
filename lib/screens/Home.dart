@@ -23,7 +23,9 @@ class _HomeScreenState extends State<HomeScreen> {
       sem = '',
       roll = '',
       batch = '',
-      svv = '';
+      svv = '',
+      gender = '';
+
   bool load = true;
   Future<void> _readAll() async {
     prefs = await _prefs;
@@ -35,6 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
       roll = prefs.getString('roll');
       batch = prefs.getString('batch');
       svv = prefs.getString('svv');
+      gender = prefs.getString('gender');
+
       // name = 'name';
       // email = 'email';
       // photoUrl = 'photoUrl';
@@ -52,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _simplePopup() => PopupMenuButton<int>(
         child: CircleAvatar(
-          backgroundImage: NetworkImage(photoUrl),
+          backgroundImage: photoUrl != ''? NetworkImage(photoUrl) : gender=='M'? AssetImage('assets/images/man.png') : gender=='F'? AssetImage('assets/images/woman.png'): AssetImage('assets/images/portrait.png'),
           // NetworkImage(
           //     'https://mir-s3-cdn-cf.behance.net/project_modules/disp/f55edd25074391.5633ee08081f9.png'),
           radius: 25,
@@ -110,6 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
     print("name:$name");
     print("email:$email");
     print("photoUrl:$photoUrl");
+    print(photoUrl == '');
     return load
         ? Loading("Logging In...")
         : Scaffold(
@@ -175,10 +180,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                       height: size.height * .013,
                                     ),
                                     Text(
-                                      '',
+                                      'Information Technology'.toUpperCase(),
+                                      textAlign: TextAlign.center,
                                       style: GoogleFonts.roboto(
                                           color: Colors.white,
-                                          fontSize: 18,
+                                          fontSize: 16,
                                           fontWeight: FontWeight.bold),
                                     ),
                                   ],
@@ -302,12 +308,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             primary: false,
                             children: <Widget>[
                               new Card_Wid(
-                                  'Attendance', 'assets/images/analysis.svg'),
-                              new Card_Wid('Result', 'assets/images/score.svg'),
+                                  'Classroom', 'assets/images/classroom.svg','/classroom'),
                               new Card_Wid(
-                                  'Events', 'assets/images/calendar.svg'),
+                                  'Attendance', 'assets/images/analysis.svg','/home'),
+                              new Card_Wid('Result', 'assets/images/score.svg','/home'),
                               new Card_Wid(
-                                  'Contact Us', 'assets/images/phone-book.svg'),
+                                  'Events', 'assets/images/calendar.svg','/home'),
+                              new Card_Wid(
+                                  'Contact Us', 'assets/images/phone-book.svg','/home'),
                             ],
                           ),
                         )

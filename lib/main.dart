@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'screens/launcher.dart';
 import 'screens/login.dart';
 import 'screens/Home.dart';
+import 'screens/Classroom.dart';
 import 'screens/AlertDialog.dart';
 
 void main() => runApp(MyApp());
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => Launcher(),
         '/login': (context) => Login(),
         '/home': (context) => HomeScreen(),
+        '/classroom': (context) => Classroom(),
         },
       );
   }
