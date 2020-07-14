@@ -60,6 +60,7 @@ class _LoginState extends State<Login> {
             controller: nameController,
             maxLines: 1,
             minLines: 1,
+
             keyboardType:
                 TextInputType.numberWithOptions(signed: false, decimal: false),
             inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
@@ -89,7 +90,7 @@ class _LoginState extends State<Login> {
                   TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
             ),
             validator: (value) {
-              if (value.length < 6) {
+              if (value.length < 10) {
                 return "Invalid SVV Net ID";
               } else {
                 return null;
@@ -106,6 +107,7 @@ class _LoginState extends State<Login> {
   bool _obscureText = true;
 
   String _password;
+  final _formKey = GlobalKey<FormState>();
 
   // Toggles the password show status
   void _toggle() {
@@ -145,6 +147,9 @@ class _LoginState extends State<Login> {
                 ),
                 decoration: InputDecoration(
                   border: InputBorder.none,
+                  errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                      borderRadius: BorderRadius.circular(10.0)),
                   contentPadding: EdgeInsets.only(top: 14.0),
                   prefixIcon: Icon(
                     Icons.lock,
@@ -158,6 +163,15 @@ class _LoginState extends State<Login> {
                   hintText: 'Enter your Password',
                   hintStyle: kHintTextStyle,
                 ),
+                validator: (value){
+                  if(value.length==0 && value.isEmpty)
+                  {
+                    return "*Required";
+                  }
+                  else {
+                    return null;
+                  }
+                },
               ),
             ],
           ),
@@ -216,6 +230,14 @@ class _LoginState extends State<Login> {
         elevation: 5.0,
         onPressed: () async {
           print('Login Button Pressed');
+          if (_formKey.currentState.validate()) {
+            print("All Validating");
+          }
+          else {
+            setState(() {
+              _validate = true;
+            });
+          }
           setState(() {
             nameController.text.isEmpty ? _validate = true : _validate = false;
           });
@@ -592,38 +614,41 @@ class _LoginState extends State<Login> {
           shadowColor: Colors.grey[800],
           child: Padding(
             padding: const EdgeInsets.all(12.0),
-            child: Column(
-              children: <Widget>[
-                Center(
-                    child: Text(
-                  'Login',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: MyColor.som_blue,
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.bold,
+            child: Form(
+              key: ,
+              child: Column(
+                children: <Widget>[
+                  Center(
+                      child: Text(
+                    'Login',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      color: MyColor.som_blue,
+                      fontFamily: 'Roboto',
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )),
+                  SizedBox(
+                    height: 20.0,
                   ),
-                )),
-                SizedBox(
-                  height: 20.0,
-                ),
-                _buildEmailTF(),
-                SizedBox(
-                  height: 20.0,
-                ),
-                _buildPasswordTF(),
-                SizedBox(
-                  height: 20.0,
-                ),
-                _buildRememberMeCheckbox(),
-                _buildForgotPasswordBtn(),
-                _buildLoginBtn(),
-                SizedBox(
-                  height: 10.0,
-                ),
-                _buildSignInWithText(),
-                _buildSocialBtnRow(),
-              ],
+                  _buildEmailTF(),
+                  SizedBox(
+                    height: 20.0,
+                  ),
+                  _buildPasswordTF(),
+                  SizedBox(
+                    height: 20.0,
+                  ),
+                  _buildRememberMeCheckbox(),
+                  _buildForgotPasswordBtn(),
+                  _buildLoginBtn(),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  _buildSignInWithText(),
+                  _buildSocialBtnRow(),
+                ],
+              ),
             ),
           ),
         ),
@@ -669,4 +694,5 @@ class _LoginState extends State<Login> {
           );
         });
   }
+
 }

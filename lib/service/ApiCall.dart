@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:http/http.dart';
 // String url = "http://kjsomaiya.epizy.com/";
 String url = "http://10.0.2.2:8080/somaiya/";
+//String url = "http://192.168.0.105:8080/somaiya/";
 class UserLogin
 {
   Map data,success;

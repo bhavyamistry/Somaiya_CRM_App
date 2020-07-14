@@ -33,6 +33,8 @@ dependencies:
   basic_utils: ^1.5.1
   dio: ^3.0.9
   mysql1: ^0.17.1
+  flutter_speed_dial: ^1.2.5
+  random_string: ^2.1.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -57,11 +59,11 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
-    - assets/images/card_themes/arts
-    - assets/images/card_themes/eng_hist
-    - assets/images/card_themes/general
-    - assets/images/card_themes/math_science
-    - assets/images/card_themes/other
+    - assets/images/card_themes/arts/
+    - assets/images/card_themes/eng_hist/
+    - assets/images/card_themes/general/
+    - assets/images/card_themes/math_science/
+    - assets/images/card_themes/other/
 
 
   fonts:

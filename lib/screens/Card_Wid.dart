@@ -87,13 +87,13 @@ class _Card_WidState2 extends State<Class_Card_Wid> {
 
       },
       child: Container(
-        height: size.height*0.25,
+        height: size.height*0.23,
         width: ((size.width * 1.0) - (size.width*0.059)),
 
         child: Card(
           elevation: 5,
           semanticContainer: false,
-          clipBehavior: Clip.antiAlias,
+          clipBehavior: Clip.antiAliasWithSaveLayer,
           color: Colors.grey[50],
           borderOnForeground: true,
           shadowColor: Colors.grey[900],
@@ -105,7 +105,7 @@ class _Card_WidState2 extends State<Class_Card_Wid> {
                 Opacity(
                   opacity: 1.0,
                   child: Image.asset(
-                    "assets/images/card_themes/img_breakfast.jpg",
+                    "assets/images/card_themes/general/img_breakfast.jpg",
                     fit: BoxFit.cover,
                     width: ((size.width * 1.0) - (size.width*0.059)),
                     height: size.height*0.25,
