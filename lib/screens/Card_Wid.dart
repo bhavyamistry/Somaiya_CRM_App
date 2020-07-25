@@ -57,6 +57,57 @@ class _Card_WidState extends State<Card_Wid> {
     );
   }
 }
+class userType extends StatefulWidget {
+  var s1,t1,u1;
+  userType(String s, String t, String u){
+    s1 = s;
+    t1 = t;
+    u1 = u;
+  }
+  @override
+  _userTypeState createState() => _userTypeState(s1,t1,u1);
+}
+
+class _userTypeState extends State<userType> {
+  String name='',img_url='',user='';
+  _userTypeState(String s1, String t1,String u1)
+  {
+    name = s1;
+    img_url = t1;
+    user = u1;
+    print(user);
+  }
+  @override
+  Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+    return GestureDetector(
+      onTap: (){
+        Navigator.pop(context, user);
+      },
+      child: Card(
+        color: Colors.grey[50],
+        borderOnForeground: true,
+        shadowColor: Colors.grey[900],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(size.width*.05),
+        ),
+
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            SvgPicture.asset(
+              img_url,
+              height: size.height* .13,
+              allowDrawingOutsideViewBox: true,
+            ),
+            Text(name,style: GoogleFonts.notoSans(fontSize: 20,fontWeight: FontWeight.w600),)
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class Class_Card_Wid extends StatefulWidget {
   var s1,t1,u1;
   Class_Card_Wid(String s, String t, String u){

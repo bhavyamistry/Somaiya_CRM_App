@@ -22,9 +22,8 @@ class _LauncherState extends State<Launcher> {
     super.initState();
     _nextscreen().then(
         (status){
-          if(!status)
-          {
-            Navigator.pushReplacementNamed(context, '/login');
+          if(!status) {
+              Navigator.pushReplacementNamed(context, '/login');
           }
           else
           {

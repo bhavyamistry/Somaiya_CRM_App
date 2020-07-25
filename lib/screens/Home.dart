@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:attedancerecordsystm/screens/Card_Wid.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'Loading.dart';
 
@@ -98,6 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
     _readAll();
     super.initState();
     _nextscreen();
@@ -115,6 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
     print("name:$name");
     print("email:$email");
     print("photoUrl:$photoUrl");
+    print("svv:$svv");
     print(photoUrl == '');
     return load
         ? Loading("Logging In...")
@@ -181,11 +183,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                       height: size.height * .013,
                                     ),
                                     Text(
-                                      'Information Technology'.toUpperCase(),
+                                      svv,
                                       textAlign: TextAlign.center,
                                       style: GoogleFonts.roboto(
                                           color: Colors.white,
-                                          fontSize: 16,
+                                          fontSize: 18,
                                           fontWeight: FontWeight.bold),
                                     ),
                                   ],

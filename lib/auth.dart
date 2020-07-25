@@ -9,9 +9,10 @@ class StudentUserDetailsGoogle
   final String batch;
   final String sem;
   final String gender;
+  final String dept;
   final List<ProviderDetails> providerData;
 
-  StudentUserDetailsGoogle(this.providerDetails, this.userName, this.photoURL, this.userEmail, this.providerData, this.userRoll, this.userSvv, this.batch, this.sem, this.gender);
+  StudentUserDetailsGoogle(this.providerDetails, this.userName, this.photoURL, this.userEmail, this.providerData, this.userRoll, this.userSvv, this.batch, this.sem, this.gender, this.dept);
 
 }
 class ProviderDetails
@@ -31,6 +32,7 @@ class StudentUserDetails
   final String batch;
   final String sem;
   final String gender;
-  StudentUserDetails(this.userName, this.photoURL, this.userEmail, this.userRoll, this.userSvv, this.batch, this.sem, this.gender);
+  final String dept;
+  StudentUserDetails(this.userName, this.photoURL, this.userEmail, this.userRoll, this.userSvv, this.batch, this.sem, this.gender, this.dept);
 
 }

@@ -35,7 +35,7 @@ Widget openCustomDialog(BuildContext context,String Txt, Color color) {
                 Center(
                   child: new Text(
                     Txt,
-                    textAlign: TextAlign.left,
+                    textAlign: TextAlign.center,
                     softWrap: true,
                     textScaleFactor: 1,
                     style: new TextStyle(

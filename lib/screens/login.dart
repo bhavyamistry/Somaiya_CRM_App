@@ -10,8 +10,10 @@ import 'package:attedancerecordsystm/values/style.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:attedancerecordsystm/service/ApiCall.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'Home.dart';
 import 'AlertDialog.dart';
+import 'User_Type.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -19,17 +21,28 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  bool _rememberMe = false;
+//  bool _rememberMe = false;
   TextEditingController nameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  bool _validate = false;
+//  TextEditingController passwordController = TextEditingController();
+  bool _validate = true, _obscureText = true, _autovalid = false,fetched = false, _rememberMe = false, _mailvalidate = true, user_set = false;
   FocusNode _emailFocusNode = FocusNode();
   FocusNode _passwordFocusNode = FocusNode();
-
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+//  bool _obscureText = true;
+//  bool _autovalid = false;
+  String _password, _email;
+  final _formKey2 = GlobalKey<FormState>();
+  var screen_size;
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = new GoogleSignIn();
+  SharedPreferences prefs;
+//  bool fetched = false;
+  int succeed = 0;
   @override
   void dispose() {
-    nameController.dispose();
-    passwordController.dispose();
+//    nameController.dispose();
+//    passwordController.dispose();
     super.dispose();
   }
 
@@ -40,6 +53,7 @@ class _LoginState extends State<Login> {
   }
 
   Widget _buildEmailTF() {
+    screen_size = MediaQuery.of(context).size;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -49,18 +63,26 @@ class _LoginState extends State<Login> {
               'SVV Net ID',
               style: kLabelStyle,
             )),
-        SizedBox(height: 10.0),
+        SizedBox(height: screen_size.height * 0.01),
         Container(
           alignment: Alignment.centerLeft,
           decoration: kBoxDecorationStyle,
           height: 60.0,
           child: TextFormField(
-            autofocus: true,
             focusNode: _emailFocusNode,
             controller: nameController,
             maxLines: 1,
+            onSaved: (val) => _email = val,
             minLines: 1,
-
+            autovalidate: !_mailvalidate,
+            onTap: (){
+              if(_email.length>0) {
+                setState(() {
+                  _mailvalidate = true;
+                });
+              }
+              print("Inside-MailValidate:$_mailvalidate");
+            },
             keyboardType:
                 TextInputType.numberWithOptions(signed: false, decimal: false),
             inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
@@ -78,7 +100,7 @@ class _LoginState extends State<Login> {
                   borderRadius: BorderRadius.circular(10.0)),
               border: InputBorder.none,
 //              labelText: "SVV Net ID",
-              contentPadding: EdgeInsets.only(top: 7.0, bottom: 7.0),
+              contentPadding: EdgeInsets.only(top: 12.0),
               prefixIcon: Icon(
                 Icons.domain,
                 color: Colors.grey[800],
@@ -86,13 +108,16 @@ class _LoginState extends State<Login> {
               hintText: 'Enter your SVV Net ID',
               hintStyle: kHintTextStyle,
               counterText: '',
-              errorStyle:
-                  TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              errorStyle: GoogleFonts.roboto(color: Colors.red, fontWeight: FontWeight.bold,letterSpacing: 0.5, fontSize: 12,height: 0.35),
             ),
             validator: (value) {
-              if (value.length < 10) {
-                return "Invalid SVV Net ID";
-              } else {
+              if (value.length < 10 && value.length > 0) {
+                return "*Invalid SVV Net ID";
+              }
+              else if(value.length == 0 && value.isEmpty) {
+                return "*Required";
+              }
+              else {
                 return null;
               }
             },
@@ -104,10 +129,7 @@ class _LoginState extends State<Login> {
       ],
     );
   }
-  bool _obscureText = true;
 
-  String _password;
-  final _formKey = GlobalKey<FormState>();
 
   // Toggles the password show status
   void _toggle() {
@@ -117,6 +139,7 @@ class _LoginState extends State<Login> {
   }
 
   Widget _buildPasswordTF() {
+    screen_size = MediaQuery.of(context).size;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -129,15 +152,30 @@ class _LoginState extends State<Login> {
         ),
         SizedBox(height: 10.0),
         Container(
+          margin: EdgeInsets.symmetric(vertical: 0.0),
+          padding: EdgeInsets.fromLTRB(0, 0.0, 0, 0.0),
           alignment: Alignment.centerLeft,
           decoration: kBoxDecorationStyle,
-          height: 60.0,
+          height: _validate? screen_size.height * 0.105 : screen_size.height * 0.105,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
+
               TextFormField(
                 controller: passwordController,
+                maxLines:  1,
+                minLines: 1,
                 onSaved: (val) => _password = val,
+                onTap: (){
+                  if(_password.length>0) {
+                    setState(() {
+                      _validate = true;
+                    });
+                  }
+                  print("Inside-Validate:$_validate");
+                },
+                autovalidate: !_validate,
+                textInputAction: TextInputAction.next,
                 obscureText: _obscureText,
                 style: TextStyle(
                   color: Colors.black87,
@@ -150,7 +188,7 @@ class _LoginState extends State<Login> {
                   errorBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.red),
                       borderRadius: BorderRadius.circular(10.0)),
-                  contentPadding: EdgeInsets.only(top: 14.0),
+                  contentPadding: EdgeInsets.fromLTRB(0, 12.0, 0, 0.0),
                   prefixIcon: Icon(
                     Icons.lock,
                     color: Colors.grey[800],
@@ -162,20 +200,31 @@ class _LoginState extends State<Login> {
                   ),
                   hintText: 'Enter your Password',
                   hintStyle: kHintTextStyle,
+                  errorStyle: GoogleFonts.roboto(color: Colors.red, fontWeight: FontWeight.bold,letterSpacing: 0.5, fontSize: 12,height: 0.35),
+//                  errorText: _validate? null : "*Required",
+
+                  counterText: '',
                 ),
                 validator: (value){
                   if(value.length==0 && value.isEmpty)
                   {
+//                    setState(() {
+//                      _validate = false;
+//                    });
+                    print("Inside-Validate:$_validate");
                     return "*Required";
                   }
                   else {
+                    print("Inside-Validate:$_validate");
+//                      setState(() {
+//                        _validate = true;
+//                      });
                     return null;
                   }
                 },
               ),
-            ],
+              ],
           ),
-
         ),
       ],
     );
@@ -230,73 +279,79 @@ class _LoginState extends State<Login> {
         elevation: 5.0,
         onPressed: () async {
           print('Login Button Pressed');
-          if (_formKey.currentState.validate()) {
+          setState(() {
+//            nameController.text.isEmpty ? _validate = true : _validate = false;
+          });
+          if (_formKey2.currentState.validate()) {
             print("All Validating");
-          }
-          else {
-            setState(() {
-              _validate = true;
+            print("SVV Net ID:${nameController.text}");
+            print("Password:${passwordController.text}");
+            UserLogin user = UserLogin();
+            await user
+                .getCredentials(
+                nameController.text, passwordController.text, 'student')
+                .then((value) async {
+              print("value is:$value");
+              var l1 = value[0];
+              print(l1['success']);
+              print(l1['success'].runtimeType);
+              // succeed = int.parse(l1['success']);
+              StudentUserDetails details;
+              if (l1['success'] == 1) {
+                Navigator.of(context).push(
+                  PageRouteBuilder(
+                      pageBuilder: (context, _, __) => openCustomDialog(context,'Login Successfull!',MyColor.login_success),
+                      opaque: false),
+                );
+                var l2 = value[1];
+                String name =
+                    l2['F_name'] + ' ' + l2['M_name'] + ' ' + l2['L_name'];
+                details = new StudentUserDetails(
+                    name,
+                    l2['img'],
+                    l2['S_email'],
+                    l2['roll'],
+                    l2['S_id'],
+                    l2['batch'],
+                    l2['current_sem'],
+                    l2['gender'],
+                    l2['dept_short']);
+                _addUserInformation(details);
+                print(readAll());
+              } else {
+                details = new StudentUserDetails(
+                  '',
+                  '',
+                  '',
+                  '',
+                  '',
+                  '',
+                  '',
+                  '',
+                  '');
+                Navigator.of(context).push(
+                  PageRouteBuilder(
+                      pageBuilder: (context, _, __) => openCustomDialog(context,'Authentication Failed Check ID or Password',MyColor.login_fail),
+                      opaque: false),
+                );
+              }
             });
           }
-          setState(() {
-            nameController.text.isEmpty ? _validate = true : _validate = false;
-          });
-          UserLogin user = UserLogin();
-          await user
-              .getCredentials(
-                  nameController.text, passwordController.text, 'student')
-              .then((value) async {
-            print("value is:$value");
-            var l1 = value[0];
-            print(l1['success']);
-            print(l1['success'].runtimeType);
-            // succeed = int.parse(l1['success']);
-            StudentUserDetails details;
-            if (l1['success'] == 1) {
-              Navigator.of(context).push(
-                PageRouteBuilder(
-                    pageBuilder: (context, _, __) => openCustomDialog(context,'Login Successfull!',MyColor.login_success),
-                    opaque: false),
-              );
-              var l2 = value[1];
-              String name =
-                  l2['F_name'] + ' ' + l2['M_name'] + ' ' + l2['L_name'];
-              details = new StudentUserDetails(
-                  name,
-                  l2['img'],
-                  l2['S_email'],
-                  l2['roll'],
-                  l2['S_id'],
-                  l2['batch'],
-                  l2['current_sem'],
-                  l2['gender']);
-              _addUserInformation(details);
-
-              print(readAll());
-            } else {
-              details = new StudentUserDetails(
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-              );
-              Navigator.of(context).push(
-                PageRouteBuilder(
-                    pageBuilder: (context, _, __) => openCustomDialog(context,'Authentication Failed Check ID or Password',MyColor.login_fail),
-                    opaque: false),
-              );
-            }
-          });
+          else {
+            print("Form is not valid");
+            setState(() {
+              _autovalid = !_autovalid;
+              _validate = false;
+            });
+            print("Auto-Valid:$_autovalid");
+          }
         },
         padding: EdgeInsets.all(15.0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
         ),
         color: Color(0xfff9fcfb),
+        splashColor: MyColor.kj_red,
         child: Text(
           'LOGIN',
           style: TextStyle(
@@ -376,39 +431,6 @@ class _LoginState extends State<Login> {
     );
   }
 
-//  Widget _buildSignupBtn() {
-//    return GestureDetector(
-//      onTap: () => print('Sign Up Button Pressed'),
-//      child: RichText(
-//        text: TextSpan(
-//          children: [
-//            TextSpan(
-//              text: 'Don\'t have an Account? ',
-//              style: TextStyle(
-//                color: Colors.white,
-//                fontSize: 18.0,
-//                fontWeight: FontWeight.w400,
-//              ),
-//            ),
-//            TextSpan(
-//              text: 'Sign Up',
-//              style: TextStyle(
-//                color: Colors.white,
-//                fontSize: 18.0,
-//                fontWeight: FontWeight.bold,
-//              ),
-//            ),
-//          ],
-//        ),
-//      ),
-//    );
-//  }
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = new GoogleSignIn();
-  SharedPreferences prefs;
-  bool fetched = false;
-  int succeed = 0;
-
   Future<FirebaseUser> _signIn(BuildContext context) async {
 //    final snackBar = SnackBar(
 //      content: new Text('Sign in'),
@@ -429,11 +451,10 @@ class _LoginState extends State<Login> {
     ProviderDetails providerInfo = new ProviderDetails(userDetails.providerId);
     List<ProviderDetails> providerData = new List<ProviderDetails>();
     providerData.add(providerInfo);
-
     GoogleUserLogin user = GoogleUserLogin();
     StudentUserDetailsGoogle details;
     await user
-        .getCredentialsFromEmail('bhavya.mistry@somaiya.edu', 'student')
+        .getCredentialsFromEmail(userDetails.email, 'student')
         .then((value) {
       print("value is:$value");
       var l1 = value[0];
@@ -441,24 +462,46 @@ class _LoginState extends State<Login> {
       print(l1['success'].runtimeType);
       // succeed = int.parse(l1['success']);
       if (l1['success'] == 1) {
-        var l2 = value[1];
-        String name = l2['F_name'] + ' ' + l2['M_name'] + ' ' + l2['L_name'];
-        details = new StudentUserDetailsGoogle(
-            userDetails.providerId,
-            name,
-            userDetails.photoUrl,
-            userDetails.email,
-            providerData,
-            l2['roll'],
-            l2['S_id'],
-            l2['batch'],
-            l2['current_sem'],
-            l2['gender']);
-        _addUserInformation(details);
-        print(readAll());
+        Navigator.of(context).push(
+          PageRouteBuilder(
+            pageBuilder: (BuildContext context, Animation<double> animation,
+                Animation<double> secondaryAnimation) {
+              return openCustomDialog(context,'Authentication Failed Check ID or Password',MyColor.login_fail);
+            },
+            transitionsBuilder: (BuildContext context,
+                Animation<double> animation,
+                Animation<double> secondaryAnimation,
+                Widget child) =>
+                SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(-9, 0),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                ),
+            transitionDuration: Duration(milliseconds: 0),
+          ),
+        ).then((value){
+          var l2 = value[1];
+          String name = l2['F_name'] + ' ' + l2['M_name'] + ' ' + l2['L_name'];
+          details = new StudentUserDetailsGoogle(
+              userDetails.providerId,
+              name,
+              userDetails.photoUrl,
+              userDetails.email,
+              providerData,
+              l2['roll'],
+              l2['S_id'],
+              l2['batch'],
+              l2['current_sem'],
+              l2['gender'],
+              l2['dept_short']);
+          _addUserInformation(details);
+          print(readAll());
+        });
       } else {
         details = new StudentUserDetailsGoogle(
-            '', '', '', '', providerData, '', '', '', '','');
+            '', '', '', '', providerData, '', '', '', '','','');
         Navigator.of(context).push(
           PageRouteBuilder(
             pageBuilder: (BuildContext context, Animation<double> animation,
@@ -500,58 +543,57 @@ class _LoginState extends State<Login> {
     prefs.setString('sem', details.sem);
     prefs.setString('batch', details.batch);
     prefs.setString('gender', details.gender);
+    prefs.setString('dept', details.dept);
     prefs.setString('logged_in', 'true');
   }
 
   Future<bool> readAll() async {
     prefs = await SharedPreferences.getInstance();
     print("login:${prefs.getString('logged_in')}");
-    if (prefs.getString('logged_in') == 'true') {
-      Navigator.pushReplacementNamed(context, '/home');
-      return true;
-    } else {
-      print("False");
-      return false;
-    }
+    print("2 seconds over");
+    Future.delayed(const Duration(milliseconds: 500), () {
+      setState(() {
+        if (prefs.getString('logged_in') == 'true') {
+          Navigator.pushReplacementNamed(context, '/home');
+          return true;
+        } else {
+          print("False");
+          return false;
+        }
+      });
+    });
+
   }
 
-  Future showAlert(BuildContext context) async {
-    await Future.delayed(Duration(seconds: 0));
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: new Text('Welcome To Our App :) .'),
-          actions: <Widget>[
-            FlatButton(
-              child: new Text("OK"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
-    showAlert(context);
+//    showAlert(context);
     print("Before Init");
+    userScreen();
     super.initState();
 //    print(_items);
+  }
+
+  void userScreen() async
+  {
+    var user = await Navigator.of(context).push(
+      PageRouteBuilder(
+          pageBuilder: (context, _, __) => User_Type(),
+          opaque: true),
+    );
   }
 
   Widget build(BuildContext context) {
     print("Build method called before");
     print("Build method called after");
+    print("Validate:$_validate");
+    print("Auto-Validate:$_autovalid");
     return Scaffold(
       backgroundColor: Colors.white,
       key: _scaffoldKey,
+      resizeToAvoidBottomInset: false,
       resizeToAvoidBottomPadding: true,
       body: _createStack(),
     );
@@ -615,7 +657,8 @@ class _LoginState extends State<Login> {
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Form(
-              key: ,
+              autovalidate: _autovalid,
+              key: _formKey2,
               child: Column(
                 children: <Widget>[
                   Center(

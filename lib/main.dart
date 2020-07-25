@@ -4,7 +4,8 @@ import 'screens/launcher.dart';
 import 'screens/login.dart';
 import 'screens/Home.dart';
 import 'screens/Classroom.dart';
-import 'screens/AlertDialog.dart';
+import 'screens/User_Type.dart';
+
 
 void main() => runApp(MyApp());
 
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => Login(),
         '/home': (context) => HomeScreen(),
         '/classroom': (context) => Classroom(),
+        '/user_type': (context) => User_Type(),
         },
       );
   }
